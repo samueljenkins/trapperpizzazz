@@ -4,7 +4,16 @@ using System.Text;
 using NLog;
 
 
-
+/// <summary>
+/// 
+/// A code sample project written by Samuel Jenkins
+/// 
+/// This small library provides a way to get a collection of playing card values
+/// and provides a means of sorting those values using the default IList Sort method and
+/// provides a way of shuffling the cards using an implementation of IShuffleStyle interface
+/// or by selecting the default which takes no arguments.
+/// 
+/// </summary>
 namespace TrappersPizzazz
 {
     public interface IDeck : IList<ICard>
@@ -30,13 +39,15 @@ namespace TrappersPizzazz
         /// <param name="shuffleStyles"></param>
         void Shuffle(ICollection<IShuffleStyle> shuffleStyles);
 
-        /**
-         * 
-         */
+        /// <summary>
+        /// Ensures the sort method is available
+        /// </summary>
         void Sort();
     }
 
-
+    /// <summary>
+    /// The interface the cards must implement in order to be used by the Deck
+    /// </summary>
     public interface ICard : IComparable<ICard>
     {
         Suit Suit { get; }
