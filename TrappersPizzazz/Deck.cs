@@ -10,19 +10,24 @@ namespace TrappersPizzazz
     public interface IDeck : IList<ICard>
     {
 
-        /**
-         * 
-         */
+
+        /// <summary>
+        /// Default method to shuffle the cards
+        /// </summary>
         void Shuffle();
 
-        /**
-         * 
-         */
+
+        /// <summary>
+        /// Provides a way to customize the shuffle algorithm to your liking
+        /// </summary>
+        /// <param name="shuffleStyle"></param>
         void Shuffle(IShuffleStyle shuffleStyle);
 
-        /**
-         *
-         */
+
+        /// <summary>
+        /// This method makes it possible to link any number of shuffle styles together
+        /// </summary>
+        /// <param name="shuffleStyles"></param>
         void Shuffle(ICollection<IShuffleStyle> shuffleStyles);
 
         /**
@@ -38,7 +43,9 @@ namespace TrappersPizzazz
         FaceValue FaceValue { get; }
     }
 
-
+    /// <summary>
+    /// The suit for the card
+    /// </summary>
     public enum Suit
     {
         CLUBS,
@@ -47,7 +54,9 @@ namespace TrappersPizzazz
         HEARTS
     }
 
-
+    /// <summary>
+    /// The face of the card less the suit
+    /// </summary>
     public enum FaceValue
     {
         ACE,
@@ -66,14 +75,20 @@ namespace TrappersPizzazz
     }
 
 
-
+    /// <summary>
+    /// Deck is the default implementation of IDeck which can be handled as a type of collection
+    /// </summary>
     public class Deck : List<ICard>, IDeck
     {
 
-
+        /// <summary>
+        /// makes the total possible unique card value quantity known
+        /// </summary>
         public static int MAX_CARD_COUNT = Enum.GetNames(typeof(Suit)).Length * Enum.GetNames(typeof(FaceValue)).Length;
 
-
+        /// <summary>
+        /// This constructor should be the only way to instantiate this class
+        /// </summary>
         public Deck()
         {
             foreach (Suit suit in Enum.GetValues(typeof(Suit)))
@@ -85,7 +100,11 @@ namespace TrappersPizzazz
             }
         }
 
-
+        /// <summary>
+        /// This override makes printing the deck contents more readable and is also
+        /// used for the hash value override
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder jsonbldr = new StringBuilder("[");
@@ -99,23 +118,29 @@ namespace TrappersPizzazz
             return jsonbldr.ToString();
         }
 
-
+        /// <summary>
+        /// Uses the default value of the ShuffleStyle to shuffle the cards
+        /// </summary>
         public void Shuffle()
         {
             this.Shuffle(ShuffleStyle.DEFAULT);
         }
 
-        /**
-         * Write a method, function, or procedure that randomly shuffles a standard deck of 52 playing cards.
-         * 
-         * 
-         */
+
+        /// <summary>
+        /// The main method for shuffling which takes an IShuffleStyle implementation and
+        /// uses it's shuffle machine to do the work
+        /// </summary>
+        /// <param name="shuffleStyle"></param>
         public void Shuffle(IShuffleStyle shuffleStyle)
         {
             shuffleStyle.Machine(this);
         }
 
-
+        /// <summary>
+        /// Makes it possible to use many IShuffleStyle implementations to shuffle sequentially
+        /// </summary>
+        /// <param name="shuffleStyles"></param>
         public void Shuffle(ICollection<IShuffleStyle> shuffleStyles)
         {
             foreach(IShuffleStyle shuffleStyle in shuffleStyles)
@@ -124,7 +149,11 @@ namespace TrappersPizzazz
             }
         }
 
-
+        /// <summary>
+        /// Makes it possible to compare by the value of the deck contents
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             bool isEqual = false;
@@ -143,7 +172,10 @@ namespace TrappersPizzazz
             return isEqual;
         }
 
-
+        /// <summary>
+        /// Uses the string value to ensure unique card sets (could be two of the same value, not recommended)
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return this.ToString().GetHashCode();
@@ -151,25 +183,38 @@ namespace TrappersPizzazz
 
     }
 
-    /**
-     * https://en.wikipedia.org/wiki/Playing_cards_in_Unicode
-     * 
-     * 
-     * 
-     * 
-     */
+
+    /// <summary>
+    /// Default implementation of the ICard interface
+    /// </summary>
     public class Card : ICard
     {
-
+        /// <summary>
+        /// The suit of the card
+        /// </summary>
         public Suit Suit { get; protected set; }
+
+        /// <summary>
+        /// The face value of the card minus the suit
+        /// </summary>
         public FaceValue FaceValue { get; protected set; }
 
+        /// <summary>
+        /// Use this constructor to create a new card
+        /// </summary>
+        /// <param name="suit"></param>
+        /// <param name="cardval"></param>
         public Card(Suit suit, FaceValue cardval)
         {
             this.Suit = suit;
             this.FaceValue = cardval;
         }
 
+        /// <summary>
+        /// Using this to sort the cards using standard Sort method
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public int CompareTo(ICard obj)
         {
             int suitPosition = ((IComparable)Suit).CompareTo(obj.Suit);
@@ -183,11 +228,20 @@ namespace TrappersPizzazz
             }
         }
 
+        /// <summary>
+        /// Override to make a more readable string output of the value
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return "" + this.FaceValue  + "_OF_" + this.Suit;
         }
 
+        /// <summary>
+        /// Makes two cards with the same values equal to each other
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             bool isEqual = false;
@@ -202,6 +256,11 @@ namespace TrappersPizzazz
             return isEqual;
         }
 
+        /// <summary>
+        /// Uses the suit and facevalue to calculate unique hash 
+        /// provided the values of Suit and FaceValue don't get out of hand
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             int suitInt = (int)this.Suit + 1 * 100;
@@ -211,16 +270,23 @@ namespace TrappersPizzazz
         }
     }
 
-
+    /// <summary>
+    /// The one method required to implement your own style of shuffle
+    /// </summary>
     public interface IShuffleStyle
     {
         void Machine(IList<ICard> deck);
     }
 
 
-    // 
-    //     http://www.pokerology.com/articles/how-to-shuffle-cards
-    //
+    /// <summary>
+    /// A class to make it easy to select the available implementations of IShuffleStyle
+    /// I had hoped to implement more but at this time it is what it is.  This link provided
+    /// me with an interesting list and ideas for providing different styles of shuffling.
+    /// 
+    ///      http://www.pokerology.com/articles/how-to-shuffle-cards
+    /// 
+    /// </summary>
     public class ShuffleStyle
     {
 
@@ -235,7 +301,9 @@ namespace TrappersPizzazz
         public static IShuffleStyle DEFAULT = OVERHEAD; // You get the one most people use.
     }
 
-
+    /// <summary>
+    /// Some reusable code to randomly split the deck not always at the exact middle
+    /// </summary>
     public class HumanShuffleStyleHelper
     {
         public static double STANDARD_DECK_SPLIT_PRECISION = 0.2;
@@ -244,7 +312,12 @@ namespace TrappersPizzazz
         public Random random = new Random((int)DateTime.Now.Ticks);
         public double splitPrecision = STANDARD_DECK_SPLIT_PRECISION; // Percentage of the middle the deck will be split at 0.0 is absolute precision
 
-
+        /// <summary>
+        /// Provided the number of cards this method will calculate where to split the deck
+        /// with some randomness with possible configurable precision
+        /// </summary>
+        /// <param name="cardCount"></param>
+        /// <returns></returns>
         public int SplitTheDeck(int cardCount)
         {
             int splitIndex = 0;
@@ -259,8 +332,9 @@ namespace TrappersPizzazz
         }
     }
 
-
-    // The Overhand Shuffle – This is the shuffle used by most people.  A good simple, lazy, sloppy shuffle.
+    /// <summary>
+    /// The Overhand Shuffle – This is the shuffle used by most people.  A good simple, lazy, sloppy shuffle.
+    /// </summary>
     public class OverheadShuffleStyle : HumanShuffleStyleHelper, IShuffleStyle
     {
 
@@ -358,7 +432,9 @@ namespace TrappersPizzazz
     }
 
 
-    // The Hindu Shuffle – A simple, quick and very elegant shuffle.One of my personal favourites.
+    /// <summary>
+    /// The Hindu Shuffle – A simple, quick and very elegant shuffle.One of my personal favourites.
+    /// </summary>
     public class HinduShuffleStyle : IShuffleStyle
     {
         public void Machine(IList<ICard> deck)
@@ -368,7 +444,9 @@ namespace TrappersPizzazz
     }
 
 
-    // The Weave Shuffle – A very simple shuffle to perform and for those yet to master the riffle shuffle.
+    /// <summary>
+    /// The Weave Shuffle – A very simple shuffle to perform and for those yet to master the riffle shuffle.
+    /// </summary>
     public class WeaveShuffleStyle : IShuffleStyle
     {
         public void Machine(IList<ICard> deck)
@@ -378,7 +456,9 @@ namespace TrappersPizzazz
     }
 
 
-    // The Riffle Shuffle – This is a great way to shuffle cards and not as difficult as it looks.
+    /// <summary>
+    /// The Riffle Shuffle – This is a great way to shuffle cards and not as difficult as it looks.
+    /// </summary>
     public class RiffleShuffleStyle : IShuffleStyle
     {
         public void Machine(IList<ICard> deck)
@@ -388,7 +468,9 @@ namespace TrappersPizzazz
     }
 
 
-    // The Table Riffle Shuffle – This is easier than the in the hands riffle shuffle, yet just as effective and elegant.
+    /// <summary>
+    /// The Table Riffle Shuffle – This is easier than the in the hands riffle shuffle, yet just as effective and elegant.
+    /// </summary>
     public class TableRiffleShuffleStyle : IShuffleStyle
     {
         public void Machine(IList<ICard> deck)
@@ -407,7 +489,9 @@ namespace TrappersPizzazz
         }
     }
 
-    //
+    /// <summary>
+    /// TODO
+    /// </summary>
     public class PortlandPowerhouseShuffleStyle : IShuffleStyle
     {
         public void Machine(IList<ICard> deck)
@@ -417,7 +501,9 @@ namespace TrappersPizzazz
     }
 
 
-    //
+    /// <summary>
+    /// TODO
+    /// </summary>
     public class ShiftWiseFreeStyleShowOffShuffleStyle : IShuffleStyle
     {
         public void Machine(IList<ICard> deck)
